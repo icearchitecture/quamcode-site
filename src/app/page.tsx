@@ -1,103 +1,168 @@
-import Image from "next/image";
+'use client';
+
+import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+
+// Dynamic import for Spline (client-side only)
+const Spline = dynamic(() => import('@splinetool/react-spline').then(mod => mod.default || mod), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-black animate-pulse" />
+});
+
+// API Card Component
+const APICard = ({ api, index }: { api: any; index: number }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ scale: 1.05, z: 10 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="relative"
+    >
+      <div className={`
+        relative p-6 rounded-2xl backdrop-blur-xl border border-white/10
+        ${isHovered ? 'bg-white/10' : 'bg-white/5'}
+        transition-all duration-300 cursor-pointer
+      `}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold text-white">{api.name}</h3>
+          <span className={`px-3 py-1 rounded-full text-xs ${api.color} bg-white/10`}>
+            {api.category}
+          </span>
+        </div>
+        <p className="text-white/70 text-sm mb-4">{api.description}</p>
+        <div className="flex flex-wrap gap-2">
+          {api.features.map((feature: string, i: number) => (
+            <span key={i} className="text-xs px-2 py-1 rounded-lg bg-white/5 text-white/60">
+              {feature}
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const apis = [
+    {
+      name: 'OpenAI',
+      category: 'AI',
+      color: 'text-green-400',
+      description: 'Advanced language models for text generation and analysis',
+      features: ['GPT-4', 'DALL-E', 'Whisper']
+    },
+    {
+      name: 'Anthropic',
+      category: 'AI',
+      color: 'text-blue-400',
+      description: 'Claude AI for safe and helpful conversations',
+      features: ['Claude 3', 'Constitutional AI', 'Long Context']
+    },
+    {
+      name: 'ElevenLabs',
+      category: 'Voice',
+      color: 'text-purple-400',
+      description: 'Realistic voice synthesis and cloning',
+      features: ['Voice Cloning', 'Multi-language', 'Emotion Control']
+    },
+    {
+      name: 'Stripe',
+      category: 'Payment',
+      color: 'text-indigo-400',
+      description: 'Payment processing and financial infrastructure',
+      features: ['Subscriptions', 'Invoicing', 'Global Payments']
+    },
+    {
+      name: 'Twilio',
+      category: 'Communication',
+      color: 'text-red-400',
+      description: 'SMS, Voice, and Video communication APIs',
+      features: ['SMS', 'Voice Calls', 'Video Chat']
+    },
+    {
+      name: 'Google Maps',
+      category: 'Location',
+      color: 'text-yellow-400',
+      description: 'Mapping and location-based services',
+      features: ['Geocoding', 'Directions', 'Places API']
+    }
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <div className="relative min-h-screen bg-black overflow-hidden">
+      {/* Spline 3D Background */}
+      <div className="absolute inset-0 z-0">
+        <Spline 
+          scene="https://prod.spline.design/6Wq1Q7YGyM-KPnav/scene.splinecode"
+          className="w-full h-full"
+        />
+      </div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-10" />
+
+      {/* SOLOMON Background Text */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.03 }}
+        transition={{ duration: 2 }}
+        className="absolute inset-0 flex items-center justify-center z-5"
+      >
+        <h1 className="text-[20vw] font-bold text-white select-none">
+          SOLOMON
+        </h1>
+      </motion.div>
+
+      {/* Main Content */}
+      <div className="relative z-20 container mx-auto px-6 py-20">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6">
+            Build with{' '}
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
+              Intelligence
+            </span>
+          </h2>
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
+            Connect your apps with cutting-edge APIs. Create experiences that feel alive.
+          </p>
+        </motion.div>
+
+        {/* API Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+          {apis.map((api, index) => (
+            <APICard key={api.name} api={api} index={index} />
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="text-center"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <button className="group relative px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-all hover:scale-105">
+            <span className="relative z-10">Start Building</span>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-red-400"
+              initial={{ x: '-100%' }}
+              whileHover={{ x: 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          </button>
+        </motion.div>
+      </div>
     </div>
   );
 }
