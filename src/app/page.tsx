@@ -240,14 +240,28 @@ export default function Home() {
           className="text-center mb-20"
         >
           <h2 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Build with{' '}
+            <motion.span
+              animate={{ 
+                opacity: [1, 0.5, 1],
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            >
+              You Dream
+            </motion.span>
+            {', '}
             <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
-              Intelligence
+              I Build
             </span>
           </h2>
-          <p className="text-xl text-white/70 max-w-2xl mx-auto">
-            Click an API to begin. Solomon learns your patterns and suggests before you ask.
-          </p>
+          <motion.p 
+            className="text-xl text-white/70 max-w-2xl mx-auto"
+            animate={{ 
+              opacity: [0.7, 1, 0.7],
+            }}
+            transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+          >
+            You Build, I Dream. Tell Solomon what you need.
+          </motion.p>
         </motion.div>
 
         {/* Scroll Indicator */}
