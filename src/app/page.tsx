@@ -105,12 +105,14 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-black overflow-hidden">
       {/* Spline 3D Background */}
-      <div className="absolute inset-0 z-0">
-        <SplineScene />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="w-full h-full pointer-events-auto">
+          <SplineScene />
+        </div>
       </div>
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-10 pointer-events-none" />
 
       {/* SOLOMON Background Text */}
       <motion.div
