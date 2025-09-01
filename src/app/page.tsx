@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
-// Dynamic import for Spline (client-side only)
-const Spline = dynamic(() => import('@splinetool/react-spline').then(mod => mod.default || mod), {
+// Dynamic import for Spline Scene
+const SplineScene = dynamic(() => import('../components/SplineScene'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-black animate-pulse" />
 });
@@ -98,10 +98,7 @@ export default function Home() {
     <div className="relative min-h-screen bg-black overflow-hidden">
       {/* Spline 3D Background */}
       <div className="absolute inset-0 z-0">
-        <Spline 
-          scene="https://prod.spline.design/6Wq1Q7YGyM-KPnav/scene.splinecode"
-          className="w-full h-full"
-        />
+        <SplineScene />
       </div>
 
       {/* Gradient Overlay */}
