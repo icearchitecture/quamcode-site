@@ -104,30 +104,33 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-black overflow-hidden">
-      {/* Spline 3D Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      {/* Base black background */}
+      <div className="absolute inset-0 bg-black z-0" />
+      
+      {/* Spline 3D Background with opacity */}
+      <div className="absolute inset-0 z-10 opacity-50 pointer-events-none">
         <div className="w-full h-full pointer-events-auto">
           <SplineScene />
         </div>
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black z-10 pointer-events-none" />
+      {/* Stronger Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-black z-20 pointer-events-none" />
 
       {/* SOLOMON Background Text */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.03 }}
+        animate={{ opacity: 0.05 }}
         transition={{ duration: 2 }}
-        className="absolute inset-0 flex items-center justify-center z-5"
+        className="absolute inset-0 flex items-center justify-center z-15"
       >
-        <h1 className="text-[20vw] font-bold text-white select-none">
+        <h1 className="text-[20vw] font-bold text-white/10 select-none">
           SOLOMON
         </h1>
       </motion.div>
 
       {/* Main Content */}
-      <div className="relative z-20 container mx-auto px-6 py-20">
+      <div className="relative z-30 container mx-auto px-6 py-20">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
