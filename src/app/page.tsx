@@ -11,7 +11,15 @@ const SplineScene = dynamic(() => import('../components/SplineScene'), {
 });
 
 // API Card Component
-const APICard = ({ api, index }: { api: any; index: number }) => {
+interface APIType {
+  name: string;
+  category: string;
+  color: string;
+  description: string;
+  features: string[];
+}
+
+const APICard = ({ api, index }: { api: APIType; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
