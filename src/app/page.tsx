@@ -1,8 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Dynamic import for Spline Scene
 const SplineScene = dynamic(() => import('../components/SplineScene'), {
@@ -10,127 +10,229 @@ const SplineScene = dynamic(() => import('../components/SplineScene'), {
   loading: () => <div className="w-full h-full bg-black animate-pulse" />
 });
 
-// API Card Component
+// Solomon Wave Component
+const SolomonWave = ({ isActive, userInput }: { isActive: boolean; userInput: string }) => {
+  const generateWaveGradient = (input: string) => {
+    // Generate dynamic gradient based on user input
+    const hash = input.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hue1 = (hash * 137) % 360;
+    const hue2 = (hash * 97) % 360;
+    return `linear-gradient(${hash % 180}deg, hsl(${hue1}, 70%, 50%), hsl(${hue2}, 70%, 50%))`;
+  };
+
+  return (
+    <AnimatePresence>
+      {isActive && (
+        <motion.div
+          className="absolute inset-0 z-40 flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ 
+            opacity: 1, 
+            scale: [1, 1.1, 1],
+            background: generateWaveGradient(userInput)
+          }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ 
+            scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          <motion.h1 
+            className="text-6xl font-bold text-white"
+            animate={{ 
+              opacity: [0.8, 1, 0.8],
+              y: [-10, 10, -10]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            Hello, I'm Solomon
+          </motion.h1>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// Chat Interface Component
+const ChatInterface = ({ isExpanded, onClose }: { isExpanded: boolean; onClose: () => void }) => {
+  return (
+    <AnimatePresence>
+      {isExpanded && (
+        <motion.div
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl"
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 100 }}
+          transition={{ type: "spring", damping: 25 }}
+        >
+          <div className="h-full flex flex-col p-6">
+            <motion.button
+              onClick={onClose}
+              className="self-end text-white/60 hover:text-white mb-6"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              ✕
+            </motion.button>
+            <div className="flex-1 flex items-center justify-center">
+              <h2 className="text-4xl text-white">Solomon Chat Interface</h2>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// API Card as Chip Component
 interface APIType {
   name: string;
   category: string;
   color: string;
   description: string;
   features: string[];
+  icon: string;
 }
 
-const APICard = ({ api, index }: { api: APIType; index: number }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+const APIChip = ({ api, index, onClick, isHidden }: { 
+  api: APIType; 
+  index: number; 
+  onClick: () => void;
+  isHidden: boolean;
+}) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      whileHover={{ scale: 1.05, z: 10 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="relative"
+      initial={{ opacity: 0, rotateY: 0 }}
+      animate={{ 
+        opacity: isHidden ? 0 : 1,
+        rotateY: isHidden ? 180 : 360,
+        scale: isHidden ? 0.8 : 1,
+        z: isHidden ? -100 : 0
+      }}
+      transition={{ 
+        duration: 20, 
+        repeat: isHidden ? 0 : Infinity,
+        delay: index * 0.2,
+        ease: "linear"
+      }}
+      whileHover={{ scale: 1.1, zIndex: 10 }}
+      onClick={onClick}
+      className="absolute cursor-pointer"
+      style={{
+        top: `${30 + (index % 3) * 25}%`,
+        left: `${20 + (index % 2) * 60}%`,
+        transform: 'translate(-50%, -50%)'
+      }}
     >
       <div className={`
-        relative p-6 rounded-2xl backdrop-blur-xl border border-white/10
-        ${isHovered ? 'bg-white/10' : 'bg-white/5'}
-        transition-all duration-300 cursor-pointer
+        relative p-6 rounded-full backdrop-blur-xl border-2 border-white/20
+        bg-gradient-to-br ${api.color} shadow-2xl
+        w-32 h-32 flex flex-col items-center justify-center
       `}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold text-white">{api.name}</h3>
-          <span className={`px-3 py-1 rounded-full text-xs ${api.color} bg-white/10`}>
-            {api.category}
-          </span>
-        </div>
-        <p className="text-white/70 text-sm mb-4">{api.description}</p>
-        <div className="flex flex-wrap gap-2">
-          {api.features.map((feature: string, i: number) => (
-            <span key={i} className="text-xs px-2 py-1 rounded-lg bg-white/5 text-white/60">
-              {feature}
-            </span>
-          ))}
-        </div>
+        <span className="text-4xl mb-2">{api.icon}</span>
+        <h3 className="text-sm font-bold text-white">{api.name}</h3>
       </div>
     </motion.div>
   );
 };
 
 export default function Home() {
-  const apis = [
+  const [showSolomon, setShowSolomon] = useState(false);
+  const [chatExpanded, setChatExpanded] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  const { scrollY } = useScroll();
+
+  useEffect(() => {
+    return scrollY.onChange((latest) => {
+      if (latest > 100 && !showSolomon) {
+        setShowSolomon(true);
+      }
+    });
+  }, [scrollY, showSolomon]);
+
+  const apis: APIType[] = [
     {
       name: 'OpenAI',
       category: 'AI',
-      color: 'text-green-400',
-      description: 'Advanced language models for text generation and analysis',
-      features: ['GPT-4', 'DALL-E', 'Whisper']
+      color: 'from-green-400 to-emerald-600',
+      description: 'Advanced language models',
+      features: ['GPT-4', 'DALL-E', 'Whisper'],
+      icon: '🧠'
     },
     {
-      name: 'Anthropic',
-      category: 'AI',
-      color: 'text-blue-400',
-      description: 'Claude AI for safe and helpful conversations',
-      features: ['Claude 3', 'Constitutional AI', 'Long Context']
-    },
-    {
-      name: 'ElevenLabs',
-      category: 'Voice',
-      color: 'text-purple-400',
-      description: 'Realistic voice synthesis and cloning',
-      features: ['Voice Cloning', 'Multi-language', 'Emotion Control']
+      name: 'Lyft',
+      category: 'Transport',
+      color: 'from-pink-400 to-purple-600',
+      description: 'Ride sharing API',
+      features: ['Rides', 'Estimates', 'Driver API'],
+      icon: '🚗'
     },
     {
       name: 'Stripe',
       category: 'Payment',
-      color: 'text-indigo-400',
-      description: 'Payment processing and financial infrastructure',
-      features: ['Subscriptions', 'Invoicing', 'Global Payments']
+      color: 'from-indigo-400 to-purple-600',
+      description: 'Payment processing',
+      features: ['Payments', 'Subscriptions', 'Connect'],
+      icon: '💳'
     },
     {
       name: 'Twilio',
       category: 'Communication',
-      color: 'text-red-400',
-      description: 'SMS, Voice, and Video communication APIs',
-      features: ['SMS', 'Voice Calls', 'Video Chat']
+      color: 'from-red-400 to-orange-600',
+      description: 'Communication APIs',
+      features: ['SMS', 'Voice', 'Video'],
+      icon: '📱'
     },
     {
-      name: 'Google Maps',
+      name: 'Maps',
       category: 'Location',
-      color: 'text-yellow-400',
-      description: 'Mapping and location-based services',
-      features: ['Geocoding', 'Directions', 'Places API']
+      color: 'from-blue-400 to-cyan-600',
+      description: 'Location services',
+      features: ['Geocoding', 'Routes', 'Places'],
+      icon: '🗺️'
+    },
+    {
+      name: 'Weather',
+      category: 'Data',
+      color: 'from-yellow-400 to-orange-600',
+      description: 'Weather data API',
+      features: ['Current', 'Forecast', 'Historical'],
+      icon: '🌤️'
     }
   ];
 
+  const handleAPIClick = (apiName: string) => {
+    setUserInput(apiName);
+    setChatExpanded(true);
+  };
+
   return (
     <div className="relative min-h-screen bg-black overflow-hidden">
-      {/* Base black background */}
-      <div className="absolute inset-0 bg-black z-0" />
-      
-      {/* Spline 3D Background with opacity */}
-      <div className="absolute inset-0 z-10 opacity-50 pointer-events-none">
-        <div className="w-full h-full pointer-events-auto">
-          <SplineScene />
-        </div>
+      {/* Spline 3D Background - Now contains the chips */}
+      <div className="absolute inset-0 z-0">
+        <SplineScene />
       </div>
 
-      {/* Stronger Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-black z-20 pointer-events-none" />
+      {/* API Chips floating in space */}
+      <div className="absolute inset-0 z-20">
+        {apis.map((api, index) => (
+          <APIChip 
+            key={api.name} 
+            api={api} 
+            index={index}
+            onClick={() => handleAPIClick(api.name)}
+            isHidden={chatExpanded}
+          />
+        ))}
+      </div>
 
-      {/* SOLOMON Background Text */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.05 }}
-        transition={{ duration: 2 }}
-        className="absolute inset-0 flex items-center justify-center z-15"
-      >
-        <h1 className="text-[20vw] font-bold text-white/10 select-none">
-          SOLOMON
-        </h1>
-      </motion.div>
+      {/* Solomon Wave Animation */}
+      <SolomonWave isActive={showSolomon && !chatExpanded} userInput={userInput} />
 
       {/* Main Content */}
-      <div className="relative z-30 container mx-auto px-6 py-20">
+      <motion.div 
+        className="relative z-30 container mx-auto px-6 py-20"
+        animate={{ opacity: chatExpanded ? 0 : 1 }}
+      >
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -144,35 +246,29 @@ export default function Home() {
             </span>
           </h2>
           <p className="text-xl text-white/70 max-w-2xl mx-auto">
-            Connect your apps with cutting-edge APIs. Create experiences that feel alive.
+            Click an API to begin. Solomon learns your patterns and suggests before you ask.
           </p>
         </motion.div>
 
-        {/* API Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-          {apis.map((api, index) => (
-            <APICard key={api.name} api={api} index={index} />
-          ))}
-        </div>
-
-        {/* CTA Section */}
+        {/* Scroll Indicator */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center"
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
-          <button className="group relative px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-all hover:scale-105">
-            <span className="relative z-10">Start Building</span>
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-red-400"
-              initial={{ x: '-100%' }}
-              whileHover={{ x: 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </button>
+          <div className="text-white/50 text-sm">Scroll to meet Solomon</div>
+          <div className="text-white/50 text-2xl">↓</div>
         </motion.div>
-      </div>
+      </motion.div>
+
+      {/* Chat Interface */}
+      <ChatInterface 
+        isExpanded={chatExpanded} 
+        onClose={() => {
+          setChatExpanded(false);
+          setShowSolomon(false);
+        }}
+      />
     </div>
   );
 }
